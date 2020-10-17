@@ -77,13 +77,13 @@ class M_tahun_ajaran extends CI_Model {
 		if(($this->db->query($sql_1)->num_rows() > 0) OR ($this->db->query($sql_2)->num_rows() > 0) OR
 			($this->db->query($sql_3)->num_rows() > 0) OR ($this->db->query($sql_4)->num_rows() > 0)){
 			return 0;
-		}else{
+		}
 			$sql = "DELETE FROM tahun_ajaran WHERE id_tahun='" .$id_tahun ."'";
 
 			$this->db->query($sql);
 
 			return $this->db->affected_rows();	
-		}
+		
 
 		
 	}
