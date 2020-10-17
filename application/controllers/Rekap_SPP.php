@@ -4,7 +4,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Rekap_SPP extends AUTH_Controller {
 	public function __construct() {
 		parent::__construct();
-		// $this->load->model('M_kelas');
 		$this->load->model('M_siswa');
 		$this->load->model('M_tahun_ajaran');
 		$this->load->model('M_SPP');
@@ -21,11 +20,7 @@ class Rekap_SPP extends AUTH_Controller {
 		$data['tahun_ajaran'] = $this->M_tahun_ajaran->select_by_tahun($data['tahun_ajaran_default'])->id_tahun;
 
 		$this->session->set_userdata('id_tahun-filter-rekap', $data['tahun_ajaran']);
-		// $this->session->set_userdata('id_kelas-filter-rekap', $this->M_wali_kelas->select_all_by_ta_limit($data['tahun_ajaran'])->id_kelas);
 		$this->session->set_userdata('id_kelas-filter-rekap', $this->M_kelas->select_all());
-
-
-		// $data['dataKelas'] 	= $this->M_wali_kelas->select_all_by_ta($data['tahun_ajaran']);
 		$data['dataKelas'] 	= $this->M_kelas->select_all();
 
 	
@@ -33,21 +28,13 @@ class Rekap_SPP extends AUTH_Controller {
 		$data['judul'] 		= "Data Rekapitulasi SPP";
 		$data['deskripsi'] 	= "Rekapitulasi Data SPP";
 
-		// $data['modal_tambah_SPP'] = show_my_modal('modals/modal_tambah_SPP', 'tambah-spp', $data);
-
 		$this->template->views('rekap_spp/home', $data);
 	}
 
 	public function tampil() {
 		$data['tahun_ajaran_default'] = $this->session->userdata('tahun_ajaran_default');
 		$data['tahun_ajaran'] = $this->M_tahun_ajaran->select_by_tahun($data['tahun_ajaran_default'])->id_tahun;
-
-		// $id_tahun = $_POST['id_tahun'];
-		// $data['dataRekap_SPP'] = $this->M_SPP->select_by_tahun($id_tahun);
-		// $data['dataSPP'] = $this->M_SPP->select_all();
 		$id_kelas 	= $this->M_kelas->select_limit()->id_kelas;
-
-		// $id_kelas=$this->session->userdata('id_kelas-filter-rekap');
 		$data['dataRekap_SPP'] = $this->M_siswa->select_by_kelas_ta($id_kelas,$data['tahun_ajaran']);
 		$this->load->view('rekap_spp/list_data', $data);
 
@@ -137,12 +124,6 @@ class Rekap_SPP extends AUTH_Controller {
 				$this->session->set_flashdata('msg', show_err_msg('Data Pembayaran Belum Terbayar'));
 				redirect('Rekap_SPP/detail/'.$data['dataRekap_SPP']->NIS.'_'.$data['dataRekap_SPP']->id_tahun);
 			}
-		// } else {
-		// 	$this->session->set_flashdata('msg', show_err_msg('Bulan tidak boleh kosong'));
-		// 	redirect('Rekap_SPP/update/'.$no_transaksi);
-		// }
-
-		// echo json_encode($out);
 	}
 
 	public function delete() {
@@ -170,16 +151,9 @@ class Rekap_SPP extends AUTH_Controller {
 
 		$this->session->set_userdata('NIS-detail-rekap-spp', $data['NIS']);
 		$this->session->set_userdata('tahun_ajaran-detail-rekap-spp', $data['tahun_ajaran']);
-		// $tahun_ajaran=$this->session->userdata('tahun_ajaran_default');
-		// $id_tahun_ajaran=$this->M_tahun_ajaran->select_by_tahun($tahun_ajaran)->id_tahun;
-		// $data['jumlahKelas'] = $this->M_kelas->total_rows();
-		// $data['dataTahunAjaran'] = $this->M_tahun_ajaran->select_all();
 		$data['dataSiswa'] = $this->M_siswa->select_detail_siswa($data['tahun_ajaran'], $data['NIS']);
-		
-
 		$this->template->views('rekap_spp/detail', $data);
 
-		// echo show_my_modal('modals/modal_detail_rekap_spp', 'detail-rekap_spp', $data, 'lg');
 	}
 
 	public function tampil_detail(){
@@ -233,27 +207,16 @@ class Rekap_SPP extends AUTH_Controller {
 	{
 	// pastikan error reporting mati, atau file pdf akan corrupt
         error_reporting(0);
-
-        // $array = explode("_", $data);
-        // $id_kelas = $array[0];
-        // $id_semester = $array[1];
-        // $id_tahun = $array[2];
-
-        // parameter OK
         if(! empty($no_transaksi)){
             // spp
             $spp = $this->M_SPP->select_by_no_transaksi($no_transaksi);
             $NIP = $this->M_SPP->select_NIP_TU($no_transaksi)->NIP;
-            // $dataCetak=$this->M_SPP->select_by_nis_and_tanggal($spp->NIS,$spp->tanggal_bayar);
             $tahun_ajaran=$this->M_tahun_ajaran->select_by_id($spp->id_tahun);
 
             $parameters=array(
                 'paper'=>'A4',
                 'orientation'=>'potrait',
             );
-
-            // load library extension class Cezpdf
-            // lokasi: ./application/libraries/Pdf.php
             $this->load->library('Pdf', $parameters);
 
             // pastikan path font benar
@@ -302,7 +265,6 @@ class Rekap_SPP extends AUTH_Controller {
             $this->pdf->ezSetDy(-20);
 
             // jalankan query
-            // $query = $this->M_absensi->select_for_laporan($id_kelas, $id_semester, $id_tahun);
             $query=$this->M_SPP->select_by_nis_and_tanggal($spp->NIS,$spp->tanggal_bayar);
 
             // persiapkan data (array) untuk tabel pdf
@@ -360,62 +322,6 @@ class Rekap_SPP extends AUTH_Controller {
 
 		$this->load->view('rekap_spp/kelola_load_kelas', $data);
 	}
-
-	public function import() {
-		$this->form_validation->set_rules('excel', 'File', 'trim|required');
-
-		if ($_FILES['excel']['name'] == '') {
-			$this->session->set_flashdata('msg', 'File harus diisi');
-		} else {
-			$config['upload_path'] = './assets/excel/';
-			$config['allowed_types'] = 'xls|xlsx';
-			
-			$this->load->library('upload', $config);
-			
-			if ( ! $this->upload->do_upload('excel')){
-				$error = array('error' => $this->upload->display_errors());
-			}
-			else{
-				$data = $this->upload->data();
-				
-				error_reporting(E_ALL);
-				date_default_timezone_set('Asia/Jakarta');
-
-				include './assets/phpexcel/Classes/PHPExcel/IOFactory.php';
-
-				$inputFileName = './assets/excel/' .$data['file_name'];
-				$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
-				$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
-
-				$index = 0;
-				foreach ($sheetData as $key => $value) {
-					if ($key != 1) {
-						$check = $this->M_kelas->check_nama($value['B']);
-
-						if ($check != 1) {
-							$resultData[$index]['nama_kelas'] = ucwords($value['B']);
-						}
-					}
-					$index++;
-				}
-
-				unlink('./assets/excel/' .$data['file_name']);
-
-				if (count($resultData) != 0) {
-					$result = $this->M_kelas->insert_batch($resultData);
-					if ($result > 0) {
-						$this->session->set_flashdata('msg', show_succ_msg('Data kelas Berhasil diimport ke database'));
-						redirect('Kelas');
-					}
-				} else {
-					$this->session->set_flashdata('msg', show_msg('Data kelas Gagal diimport ke database (Data Sudah terubah)', 'warning', 'fa-warning'));
-					redirect('Kelas');
-				}
-
-			}
-		}
-	}
-
 	
 }
 

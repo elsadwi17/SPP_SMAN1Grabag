@@ -50,10 +50,6 @@ class Auth extends CI_Controller {
 
 			$data = $this->M_auth->login($username, $password);
 
-			// $tanggal = date('d');
-			// $bulan = date('m');
-			// $tahun = date('Y');
-
 			$tahun_ajaran=$semester="";
 
 			$today = date('Y-m-d');
@@ -68,24 +64,6 @@ class Auth extends CI_Controller {
 				$semester = $master_semester->id_semester;
 			}
 			
-			// if (intval($bulan) < 7) {
-			// 	$tahun_ajaran = (intval($tahun)-1).'/'.$tahun;	
-			// 	$semester = 2;
-			// }
-			// else if(intval($bulan >7)){
-			// 	$tahun_ajaran = $tahun.'/'.(intval($tahun)+1);	
-			// 	$semester = 1;	
-			// }
-			// else{
-			// 	if (intval($tanggal<=15)) {
-			// 		$tahun_ajaran = (intval($tahun)-1).'/'.$tahun;	
-			// 		$semester = 2;
-			// 	}
-			// 	else{
-			// 		$tahun_ajaran = $tahun.'/'.(intval($tahun)+1);		
-			// 		$semester = 1;
-			// 	}
-			// }
 
 			if ($data == false) {
 				$this->session->set_flashdata('error_msg', 'Username / Password Anda Salah.');

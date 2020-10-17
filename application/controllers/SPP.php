@@ -117,8 +117,6 @@ class SPP extends AUTH_Controller {
 			redirect('SPP/tambah/'.$NIS);
 
 		}
-
-		// echo json_encode($out);
 	}
 
 	public function update($id) {
@@ -129,9 +127,6 @@ class SPP extends AUTH_Controller {
 
 		$data['dataSiswa'] = $this->M_siswa->select_by_id($id);
 		$this->template->views('siswa/form_update_siswa',$data);
-
-
-		// echo show_my_modal('modals/modal_update_siswa', 'update-siswa', $data);
 	}
 
 	public function prosesUpdate($NIS) {
@@ -170,7 +165,6 @@ class SPP extends AUTH_Controller {
 			$this->session->set_flashdata('msg', show_err_msg(validation_errors()));
 			redirect('Siswa/update/'.$NIS);
 		}
-		// echo json_encode($out);
 	}
 
 	public function delete() {
@@ -189,95 +183,8 @@ class SPP extends AUTH_Controller {
 
 		$id 				= trim($_POST['NIS']);
 		$data['siswa'] = $this->M_siswa->select_by_id($id);
-		// $data['dataPosisi'] = $this->M_siswa->select_by_pegawai($id);
-
 		echo show_my_modal('modals/modal_detail_siswa', 'detail-siswa', $data, 'lg');
 	}
-
-	public function export() {
-		error_reporting(E_ALL);
-    
-		include_once './assets/phpexcel/Classes/PHPExcel.php';
-		$objPHPExcel = new PHPExcel();
-
-		$data = $this->M_siswa->select_all();
-
-		$objPHPExcel = new PHPExcel(); 
-		$objPHPExcel->setActiveSheetIndex(0); 
-		$rowCount = 1; 
-
-		$objPHPExcel->getActiveSheet()->SetCellValue('A'.$rowCount, "NIS"); 
-		$objPHPExcel->getActiveSheet()->SetCellValue('B'.$rowCount, "Nama Siswa");
-		$rowCount++;
-
-		foreach($data as $value){
-		    $objPHPExcel->getActiveSheet()->SetCellValue('A'.$rowCount, $value->NIS); 
-		    $objPHPExcel->getActiveSheet()->SetCellValue('B'.$rowCount, $value->nama_siswa); 
-		    $rowCount++; 
-		} 
-
-		$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel); 
-		$objWriter->save('./assets/excel/Data Siswa.xlsx'); 
-
-		$this->load->helper('download');
-		force_download('./assets/excel/Data Siswa.xlsx', NULL);
-	}
-
-	public function import() {
-		$this->form_validation->set_rules('excel', 'File', 'trim|required');
-
-		if ($_FILES['excel']['name'] == '') {
-			$this->session->set_flashdata('msg', 'File harus diisi');
-		} else {
-			$config['upload_path'] = './assets/excel/';
-			$config['allowed_types'] = 'xls|xlsx';
-			
-			$this->load->library('upload', $config);
-			
-			if ( ! $this->upload->do_upload('excel')){
-				$error = array('error' => $this->upload->display_errors());
-			}
-			else{
-				$data = $this->upload->data();
-				
-				error_reporting(E_ALL);
-				date_default_timezone_set('Asia/Jakarta');
-
-				include './assets/phpexcel/Classes/PHPExcel/IOFactory.php';
-
-				$inputFileName = './assets/excel/' .$data['file_name'];
-				$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
-				$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
-
-				$index = 0;
-				foreach ($sheetData as $key => $value) {
-					if ($key != 1) {
-						$check = $this->M_siswa->check_nama($value['B']);
-
-						if ($check != 1) {
-							$resultData[$index]['nama_siswa'] = ucwords($value['B']);
-						}
-					}
-					$index++;
-				}
-
-				unlink('./assets/excel/' .$data['file_name']);
-
-				if (count($resultData) != 0) {
-					$result = $this->M_kota->insert_batch($resultData);
-					if ($result > 0) {
-						$this->session->set_flashdata('msg', show_succ_msg('Data Siswa Berhasil diimport ke database'));
-						redirect('Posisi');
-					}
-				} else {
-					$this->session->set_flashdata('msg', show_msg('Data Siswa Gagal diimport ke database (Data Sudah Terubah)', 'warning', 'fa-warning'));
-					redirect('Posisi');
-				}
-
-			}
-		}
-	}
-
 	public function bulan_yang_dibayar(){
 
 		$id_tahun = $_POST['id_tahun'];

@@ -124,112 +124,15 @@ class Kelas extends AUTH_Controller {
 		}
 	}
 
-	// public function detail() {
-	// 	$data['userdata'] 	= $this->userdata;
-
-	// 	$id 				= trim($_POST['id_kelas']);
-	// 	$data['kelas'] = $this->M_kelas->select_by_id($id);
-	// 	$data['jumlahKelas'] = $this->M_kelas->total_rows();
-	// 	$data['dataTahunAjaran'] = $this->M_tahun_ajaran->select_all();
-	// 	$data['dataSiswa'] = $this->M_siswa->select_by_kelas($id);
-
-	// 	echo show_my_modal('modals/modal_detail_kelas', 'detail-kelas', $data, 'lg');
-	// }
-
-	public function export() {
-		error_reporting(E_ALL);
-    
-		include_once './assets/phpexcel/Classes/PHPExcel.php';
-		$objPHPExcel = new PHPExcel();
-
-		$data = $this->M_kelas->select_all();
-
-		$objPHPExcel = new PHPExcel(); 
-		$objPHPExcel->setActiveSheetIndex(0); 
-
-		$objPHPExcel->getActiveSheet()->SetCellValue('A1', "ID Kelas"); 
-		$objPHPExcel->getActiveSheet()->SetCellValue('B1', "Nama kelas");
-
-		$rowCount = 2;
-		foreach($data as $value){
-		    $objPHPExcel->getActiveSheet()->SetCellValue('A'.$rowCount, $value->id_kelas); 
-		    $objPHPExcel->getActiveSheet()->SetCellValue('B'.$rowCount, $value->nama_kelas); 
-		    $rowCount++; 
-		} 
-
-		$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel); 
-		$objWriter->save('./assets/excel/Data kelas.xlsx'); 
-
-		$this->load->helper('download');
-		force_download('./assets/excel/Data kelas.xlsx', NULL);
-	}
-
-	public function import() {
-		$this->form_validation->set_rules('excel', 'File', 'trim|required');
-
-		if ($_FILES['excel']['name'] == '') {
-			$this->session->set_flashdata('msg', 'File harus diisi');
-		} else {
-			$config['upload_path'] = './assets/excel/';
-			$config['allowed_types'] = 'xls|xlsx';
-			
-			$this->load->library('upload', $config);
-			
-			if ( ! $this->upload->do_upload('excel')){
-				$error = array('error' => $this->upload->display_errors());
-			}
-			else{
-				$data = $this->upload->data();
-				
-				error_reporting(E_ALL);
-				date_default_timezone_set('Asia/Jakarta');
-
-				include './assets/phpexcel/Classes/PHPExcel/IOFactory.php';
-
-				$inputFileName = './assets/excel/' .$data['file_name'];
-				$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
-				$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
-
-				$index = 0;
-				foreach ($sheetData as $key => $value) {
-					if ($key != 1) {
-						$check = $this->M_kelas->check_nama($value['B']);
-
-						if ($check != 1) {
-							$resultData[$index]['nama_kelas'] = ucwords($value['B']);
-						}
-					}
-					$index++;
-				}
-
-				unlink('./assets/excel/' .$data['file_name']);
-
-				if (count($resultData) != 0) {
-					$result = $this->M_kelas->insert_batch($resultData);
-					if ($result > 0) {
-						$this->session->set_flashdata('msg', show_succ_msg('Data kelas Berhasil diimport ke database'));
-						redirect('Kelas');
-					}
-				} else {
-					$this->session->set_flashdata('msg', show_msg('Data kelas Gagal diimport ke database (Data Sudah terubah)', 'warning', 'fa-warning'));
-					redirect('Kelas');
-				}
-
-			}
-		}
-	}
-
 	public function tampilSiswaByKelas($id){
 		$data['userdata'] 	= $this->userdata;
 
 		$data['tahun_ajaran_default'] = $this->session->userdata('tahun_ajaran_default');
 		$data['tahun_ajaran'] = $this->M_tahun_ajaran->select_by_tahun($data['tahun_ajaran_default'])->id_tahun;
 
-		// $id 				= trim($_POST['id_kelas']);
 		$data['kelas'] = $this->M_kelas->select_by_id($id);
 		$data['jumlahKelas'] = $this->M_kelas->total_rows();
 		$data['dataTahunAjaran'] = $this->M_tahun_ajaran->select_all();
-		// $data['dataSiswa'] = $this->M_siswa->select_by_kelas_ta($id, $data['tahun_ajaran']);
 
 		$this->session->set_userdata('siswa_kelas', $id);
 
@@ -243,32 +146,10 @@ class Kelas extends AUTH_Controller {
 
 	public function selectSiswaTAKelas()
 	{
-		// $this->form_validation->set_rules('tahun_ajaran', 'Tahun Ajaran', 'trim|required');
-		// if ($this->form_validation->run() == TRUE) {
-			// $data['userdata'] 	= $this->userdata;
-
-			// $post = $this->input->post();
 			$data["id_tahun"] = $_POST['id_tahun'];
 			$id_kelas = $this->session->userdata('siswa_kelas');
-
-
-			// $id_tahun 				= trim($_POST['tahun_ajaran']);
-			// $data['kelas'] = $this->M_kelas->select_by_id($id_kelas);
-			// $data['jumlahKelas'] = $this->M_kelas->total_rows();
-			// $data['dataTahunAjaran'] = $this->M_tahun_ajaran->select_all();
-			// $data['dataSiswa'] = $this->M_siswa->select_by_kelas($id);
 			$data['dataSiswa'] = $this->M_siswa->select_by_kelas_ta($id_kelas, $data["id_tahun"]);
-
-			// $data['page'] 		= "kelas";
-			// $data['judul'] 		= "Data Kelas";
-			// $data['deskripsi'] 	= "Kelola Data Kelas";
-
 			$this->load->view('kelas/siswa_kelas_list_data', $data);
-		// }
-		// else{
-		// 	$this->session->set_flashdata('msg', show_err_msg(validation_errors()));
-		// 	redirect('Kelas/tampilSiswaByKelas/'.$id_kelas);
-		// }
 	}
 
 	public function kelola_siswa() {
@@ -354,10 +235,6 @@ class Kelas extends AUTH_Controller {
 
 		$required = TRUE;
 		foreach ($data["kelas_baru"] as $NIS => $id_kelas) {
-			// if ($id_kelas == '') {
-			// 	$required = FALSE;
-			// 	break;
-			// }
 		}
 		
 		if ($required == TRUE) {

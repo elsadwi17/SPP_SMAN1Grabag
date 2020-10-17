@@ -39,10 +39,7 @@ class Master_Semester extends AUTH_Controller {
 		$this->form_validation->set_rules('tanggal_akhir', 'Tanggal Akhir', 'trim|required');
 
 		$data 	= $this->input->post();
-		// $data['nama_mapel'] = ucwords($data['nama_mapel']);
-		// $validasi_kesamaan = $this->M_master_semester->check_nama($data['nama_mapel']);
 		if ($this->form_validation->run() == TRUE) {
-			// if ($validasi_kesamaan == 0) {
 				$tahun_ajaran = $this->M_tahun_ajaran->select_by_id($data['id_tahun']);
 				$semester = $this->M_semester->select_by_id($data['id_semester']);
 				$data['nama_semester'] = $semester->semester.' '.$tahun_ajaran->tahun;
@@ -55,11 +52,6 @@ class Master_Semester extends AUTH_Controller {
 					$out['status'] = '';
 					$out['msg'] = show_err_msg('Data Mata Pelajaran Gagal ditambahkan', '20px');
 				}
-			// }
-			// else{
-			// 	$out['status'] = 'form';
-			// 	$out['msg'] = show_err_msg('<br>Mata Pelajaran '.$data['nama_mapel'].' sudah ada', '15px');
-			// }
 		} else {
 			$out['status'] = 'form';
 			$out['msg'] = show_err_msg(validation_errors());
@@ -88,10 +80,7 @@ class Master_Semester extends AUTH_Controller {
 		$this->form_validation->set_rules('tanggal_akhir', 'Tanggal Akhir', 'trim|required');
 
 		$data 	= $this->input->post();
-		// $data['nama_mapel'] = ucwords($data['nama_mapel']);
-		// $validasi_kesamaan = $this->M_master_semester->check_nama($data['nama_mapel']);
 		if ($this->form_validation->run() == TRUE) {
-			// if ($validasi_kesamaan == 0) {
 				$tahun_ajaran = $this->M_tahun_ajaran->select_by_id($data['id_tahun']);
 				$semester = $this->M_semester->select_by_id($data['id_semester']);
 				$data['nama_semester'] = $semester->semester.' '.$tahun_ajaran->tahun;
@@ -104,11 +93,6 @@ class Master_Semester extends AUTH_Controller {
 					$out['status'] = '';
 					$out['msg'] = show_succ_msg('Data Semester Gagal diubah', '20px');
 				}
-			// }
-			// else{
-			// 	$out['status'] = 'form';
-			// 	$out['msg'] = show_err_msg('<br>Mata Pelajaran '.$data['nama_mapel'].' sudah ada', '15px');
-			// }
 		} else {
 			$out['status'] = 'form';
 			$out['msg'] = show_err_msg(validation_errors());
@@ -119,9 +103,6 @@ class Master_Semester extends AUTH_Controller {
 
 	public function delete() {
 		$id_master_semester = $_POST['id_master_semester'];
-		// $cek_pengajar = $this->M_master_semester->select_pengajar($id_master_semester); 
-	
-		// if ($cek_pengajar == 0) {
 			$result = $this->M_master_semester->delete($id_master_semester);
 			if ($result > 0){
 				echo show_succ_msg('Data Semester Berhasil dihapus', '20px');	
@@ -129,9 +110,6 @@ class Master_Semester extends AUTH_Controller {
 			else{
 				echo show_err_msg('Data Semester Gagal dihapus', '20px');	
 			}
-		// } else {
-		// 	echo show_err_msg('Data Mata Pelajaran Gagal dihapus! Cek Tabel Pengajar', '20px');
-		// }
 	}
 
 }

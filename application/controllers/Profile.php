@@ -17,8 +17,6 @@ class Profile extends AUTH_Controller {
 	}
 
 	public function update() {
-		// $this->form_validation->set_rules('NIP', 'NIP', 'trim|required|min_length[4]|max_length[15]');
-		// $this->form_validation->set_rules('nip', 'NIP', 'trim|required');
 		$this->form_validation->set_rules('nama', 'Nama', 'trim|required');
 		$this->form_validation->set_rules('alamat', 'Alamat', 'trim|required');
 		$this->form_validation->set_rules('email', 'Email', 'trim|required');
