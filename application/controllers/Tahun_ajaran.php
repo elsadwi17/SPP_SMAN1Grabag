@@ -181,7 +181,6 @@ class Tahun_ajaran extends AUTH_Controller {
 				$index = 0;
 				foreach ($sheetData as $key => $value) {
 					if ($key != 1) {
-						$id = md5(DATE('ymdhms').rand());
 						$check = $this->M_tahun_ajaran->check_nama($value['B']);
 
 						if ($check != 1) {
